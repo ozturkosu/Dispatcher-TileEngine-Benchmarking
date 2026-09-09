@@ -55,14 +55,7 @@ docs/
   04-running.md                 smoke test, full sweep, flags, outputs, cross-node split
   05-interpreting-results.md    the four outcomes, reference numbers, honest reporting
   06-troubleshooting.md         symptom -> cause -> fix
-examples/
-  problems_bf16_rcr.example.json  truncated real bridge input
-  problems_fp8_rcr.example.json   truncated real bridge input
-  shape_index.example.csv         truncated real join table
-  master_results.example.csv      truncated real aggregated results
 ```
-
-Example files are **truncated to ~10 rows** and carry a header comment saying so.
 
 ## Sanitization — you must fill in placeholders
 
