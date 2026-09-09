@@ -84,21 +84,5 @@ See `config.example.env`. Nothing will run until you supply real values. **Do no
 | Not covered | grouped, multi_d, multi_abd, preshuffle, batched, batched_contraction, stream-K, MX, quantised bridges |
 | Not covered | bridge-vs-TileEngine performance parity A/B measurement |
 
-## Reference results
 
-llama405b sheet (210 shapes): **210/210 verified, 100%**. Use it to validate a fresh environment — if you
-do not reproduce it, your setup is wrong, not the bridge.
 
-All four sheets: 3,981 rows → 1,220 unsupported dtype, 2,761 runnable, **2,291 verified (83%), 0
-runs-but-incorrect**, 470 never-ran (a coverage gap, not a correctness defect). Details in
-`docs/05-interpreting-results.md`.
-
-## Status
-
-This repository is **staged for transfer to the ROCm organization** by an org administrator. It currently
-lives under a personal account because repository creation under `ROCm` requires org admin rights. The
-content, layout and history are intended to be transferred as-is.
-
-## License
-
-MIT — see [LICENSE](LICENSE).
