@@ -1,7 +1,7 @@
 # Teaching your AI agent to run this
 
 This repository ships an **agent skill** — a single Markdown file that gives a coding agent (Claude Code,
-or any agent that reads skill/instruction files) enough operational knowledge to run a CK
+or any agent that reads skill/instruction files) enough operational knowledge to run a CK-Tile
 TileEngine→Dispatcher bridge sweep on gfx1250 end to end, without you re-explaining the environment every
 time.
 
@@ -23,7 +23,7 @@ Then **fill in the placeholders** in your copy — the committed file is sanitis
 | `<GFX1250_NODE>` | your gfx1250 host |
 | `<GPU_NODE>` | any other GPU host you use |
 | `<USER>` | your username on that host |
-| `<CK_IMAGE_TAG>` | the CK/ROCm container image tag your team is currently on |
+| `<CK_IMAGE_TAG>` | the CK-Tile/ROCm container image tag your team is currently on |
 | `<INTERNAL_WIKI_LINK>` | your internal wiki copy of the guide, if you keep one |
 
 Verify the agent picked it up by asking it to list its available skills. The skill's `description`
@@ -33,7 +33,7 @@ benchmarking without you naming it.
 ### Other agents
 
 The skill is plain Markdown with YAML front matter. For an agent that reads a project instruction file
-instead, append the body of `SKILL.md` to that file (for example `AGENTS.md` or `CLAUDE.md` in your CK
+instead, append the body of `SKILL.md` to that file (for example `AGENTS.md` or `CLAUDE.md` in your CK-Tile
 working copy), and keep the `docs/` directory alongside it.
 
 ## 2. What the skill covers — and what it does not
@@ -42,7 +42,8 @@ working copy), and keep the `docs/` directory alongside it.
 
 - node access, container launch, and the environment traps (no `render` group, bind-mount only, often only
   device 0)
-- building CK for gfx1250, including the mandatory `-DCMAKE_CXX_COMPILER=/opt/rocm/bin/hipcc`
+- locating the prebuilt CK-Tile (the driver compiles the kernels it needs on demand — there is no CK-Tile
+  library to build)
 - converting a hipBLASLt run CSV into bridge input (layout map, dtype map, group-local `problem_idx`)
 - the smoke test, and what a normal smoke result looks like
 - the full sweep, its flags, and its outputs
@@ -63,7 +64,7 @@ Paste these directly.
 
 ### Validate a fresh environment
 
-> Set up the CK bridge benchmark environment on our gfx1250 node and run the llama405b sheet
+> Set up the CK-Tile bridge benchmark environment on our gfx1250 node and run the llama405b sheet
 > (`run_8611.csv`) end to end. Do the smoke test first and stop if it does not look normal. The reference
 > result is 210/210 verified — tell me explicitly if we do not hit it, and do not paper over a build
 > failure as "environmental".

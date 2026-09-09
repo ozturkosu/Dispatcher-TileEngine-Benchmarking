@@ -57,7 +57,7 @@ State all four categories explicitly, with counts, every time.
 | Never-ran | 0 |
 
 If a fresh environment does not reproduce **210/210**, the environment is wrong — not the bridge. Check the
-arch, the config file, and that `cwd` is the CK checkout root.
+arch, the config file, and that `cwd` is the CK-Tile checkout root.
 
 ### All four sheets combined
 

@@ -5,7 +5,7 @@
 Never launch a multi-hour sweep before proving the plumbing on 10 problems.
 
 ```bash
-cd /ck/ck
+cd "$CK_SRC"
 python3 tile_engine/ops/gemm/gemm_full_benchmark.py \
   --variant gemm_universal --arch gfx1250 \
   --dtype bf16 --layout rcr \
@@ -19,7 +19,7 @@ python3 tile_engine/ops/gemm/gemm_full_benchmark.py \
 Two things people get wrong:
 
 1. **The config file is a POSITIONAL argument and it goes LAST.** It is not `--config`.
-2. **`cwd` must be the CK checkout root.** The driver resolves its config paths and helper modules
+2. **`cwd` must be the CK-Tile checkout root.** The driver resolves its config paths and helper modules
    relative to the current directory.
 
 The fp8 variant swaps three things:
@@ -46,11 +46,11 @@ failures.
 ## 4.2 Full sweep
 
 ```bash
-cd /ck/ck
+cd "$CK_SRC"
 python3 /ck/batch_mi400_pipeline.py \
   --run-csv /ck/data/run_8611.csv \
   --out /ck/work/run8611 \
-  --ck /ck/ck --devices 0 --label run8611
+  --ck "$CK_SRC" --devices 0 --label run8611
 
 python3 /ck/add_fail_reason.py /ck/work/run8611/master_results.csv
 ```
@@ -63,7 +63,7 @@ The pipeline does conversion, execution, and aggregation in one pass.
 |---|---|
 | `--run-csv` | the hipBLASLt sheet |
 | `--out` | output directory |
-| `--ck` | CK checkout root (default `/ck/ck`) |
+| `--ck` | CK-Tile checkout root (use `$CK_SRC` from §2.3; default `/ck/ck`) |
 | `--devices` | comma list passed through to the driver (usually `0`) |
 | `--label` | tag prefixed to progress lines |
 | `--only-layouts rcr,rrr` | run a subset of layout groups — for splitting one sheet across two nodes |
@@ -88,10 +88,10 @@ filtered or re-sorted sheet, every `problem_idx` is off and the merge is silentl
 ## 4.3 Running it in the background
 
 ```bash
-docker exec -d "$CK_CONTAINER" bash -lc '
-  cd /ck/ck && python3 /ck/batch_mi400_pipeline.py \
+docker exec -d "$CK_CONTAINER" bash -lc "
+  cd $CK_SRC && python3 /ck/batch_mi400_pipeline.py \
     --run-csv /ck/data/run_8611.csv --out /ck/work/run8611 \
-    --ck /ck/ck --devices 0 --label run8611 > /ck/work/run8611.log 2>&1'
+    --ck $CK_SRC --devices 0 --label run8611 > /ck/work/run8611.log 2>&1"
 
 while ! docker exec "$CK_CONTAINER" test -f /ck/work/run8611/file.done; do sleep 300; done
 docker exec "$CK_CONTAINER" cat /ck/work/run8611/file.done

@@ -2,7 +2,7 @@
 
 ## What is the "bridge"?
 
-Composable Kernel (CK) has two ways to get from a kernel description to a runnable GEMM:
+CK-Tile has two ways to get from a kernel description to a runnable GEMM:
 
 - **TileEngine (TE)** — the older path. A codegen front end that emits and builds one benchmark
   executable per kernel instance.

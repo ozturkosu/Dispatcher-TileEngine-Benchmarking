@@ -1,6 +1,6 @@
 # Dispatcher-TileEngine-Benchmarking
 
-Teach an AI agent to run **Composable Kernel (CK) TileEngine→Dispatcher bridge** correctness and coverage
+Teach an AI agent to run **CK-Tile TileEngine→Dispatcher bridge** correctness and coverage
 sweeps on AMD GPUs — specifically MI400 / **gfx1250** — driven by real production GEMM shapes captured from
 hipBLASLt.
 
@@ -9,7 +9,7 @@ example data needed to make it work. Start with **[AGENTS.md](AGENTS.md)**.
 
 ## What is "the bridge"?
 
-CK has two paths from a kernel description to a runnable GEMM: **TileEngine (TE)**, which codegens and
+CK-Tile has two paths from a kernel description to a runnable GEMM: **TileEngine (TE)**, which codegens and
 builds one benchmark executable per kernel instance, and the newer **Dispatcher**, a generic
 kernel-selection and launch layer. The **TileEngine→Dispatcher bridge** lets a TileEngine-style operator
 description execute through the Dispatcher instead of TE's own build-and-run machinery. Benchmarking it
@@ -50,7 +50,7 @@ scripts/
   add_fail_reason.py            heuristic annotation of never-ran shapes
 docs/
   01-concepts.md                what the bridge is; gfx1250 vs gfx942/gfx950; what "16 kernels" means
-  02-setup.md                   node, container, CK build, long-running jobs
+  02-setup.md                   node, container, locate CK-Tile, long-running jobs
   03-shape-sheets.md            layout/dtype mapping, bridge input format, group-local problem_idx
   04-running.md                 smoke test, full sweep, flags, outputs, cross-node split
   05-interpreting-results.md    the four outcomes, reference numbers, honest reporting

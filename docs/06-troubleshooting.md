@@ -1,6 +1,9 @@
 # 6. Troubleshooting
 
-## Build
+## Build (fallback only)
+
+The `ck-wmma-instances` image ships CK-Tile prebuilt and the driver compiles kernels on demand, so you
+normally never build. These apply only if you hit the §2.3 fallback and clone + build the source yourself.
 
 ### Every target reports "unknown", supported-target list is empty
 
@@ -64,7 +67,7 @@ Use `docker exec -d` plus a **done-marker file** and poll for the file.
 Two causes, both common:
 
 1. You passed the config as `--config`. It is a **positional** argument and must come **last**.
-2. Your `cwd` is not the CK checkout root. `cd /ck/ck` first.
+2. Your `cwd` is not the CK-Tile checkout root. `cd "$CK_SRC"` first (see §2.3).
 
 ### Zero valid kernels, every shape rejected
 

@@ -52,36 +52,45 @@ Check the GPU from inside — note `rocminfo` is **not** on `PATH`:
 | results vanish after the container is removed | you wrote outside the bind mount | always write under `/ck/...` (host `$CK_WS`) |
 | 8 cards visible on the host, only 1 usable in the container | device visibility inside the container | check, then use `--devices 0` |
 
-## 2.3 Build CK
+## 2.3 Locate the prebuilt CK-Tile
 
-Shallow-clone the **standalone** repo (~261 MB, ~20 s). The `rocm-libraries` monorepo blobless clone is
-extremely slow — avoid it for this work.
+There is **no CK-Tile to build**. The `ck-wmma-instances` image already ships the CK-Tile source with the
+gfx1250 WMMA instances in place, and this is **CK-Tile / TileEngine** — the benchmark driver compiles the
+kernel variants it needs on demand (its Phase 1 hands each config to the dispatcher, which codegens +
+compiles a `.so`). So you only need to locate the checkout and point everything at it via `$CK_SRC`:
 
 ```bash
-cd /ck && git clone --depth 1 https://github.com/ROCm/composable_kernel.git ck
-git config --global --add safe.directory /ck/ck        # bind-mount UID mismatch
-
-cd /ck/ck && mkdir -p build && cd build
-cmake -DGPU_TARGETS=gfx1250 \
-      -DCMAKE_CXX_COMPILER=/opt/rocm/bin/hipcc \
-      -DCMAKE_PREFIX_PATH=/opt/rocm ..
-make -j$(nproc)                                        # the image has no ninja
+export CK_SRC=$(find / -name gemm_full_benchmark.py 2>/dev/null | head -1 \
+  | sed 's:/tile_engine/ops/gemm/gemm_full_benchmark.py::')
+echo "CK_SRC=$CK_SRC"                                     # e.g. /composable_kernel
+ls "$CK_SRC"/tile_engine/ops/gemm/configs/ | grep 1250   # confirm the gfx1250 configs exist
 ```
 
-`-DCMAKE_CXX_COMPILER=/opt/rocm/bin/hipcc` is **not optional**. Without it, CMake's supported-target list
-comes out empty and every target — including `gfx1250` — is reported as "unknown".
+Use `cd "$CK_SRC"` and `--ck "$CK_SRC"` everywhere below. Don't hardcode a path — the image layout can move.
+
+> **Fallback only — if `CK_SRC` came back empty** (the image has no CK-Tile source). Shallow-clone the
+> standalone repo and point `CK_SRC` at it; the driver still compiles the kernels itself, so you do **not**
+> run a full `make`. Avoid the `rocm-libraries` monorepo (blobless clone is painfully slow).
+>
+> ```bash
+> cd /ck && git clone --depth 1 https://github.com/ROCm/composable_kernel.git ck
+> git config --global --add safe.directory /ck/ck     # bind-mount UID mismatch
+> export CK_SRC=/ck/ck
+> ```
 
 ## 2.4 Running long jobs without losing them
 
 Use `docker exec -d` plus a **done-marker file**. Do not poll with `pgrep`.
 
 ```bash
-docker exec -d "$CK_CONTAINER" bash -lc '
-  cd /ck/ck/build && make -j$(nproc) > /ck/build.log 2>&1; echo $? > /ck/build.done'
+docker exec -d "$CK_CONTAINER" bash -lc "
+  cd $CK_SRC && python3 /ck/batch_mi400_pipeline.py \
+    --run-csv /ck/data/run_8611.csv --out /ck/work/run8611 --ck $CK_SRC \
+    --devices 0 --label run8611 > /ck/work/run8611.log 2>&1"
 
-# poll for the marker
-while ! docker exec "$CK_CONTAINER" test -f /ck/build.done; do sleep 60; done
-docker exec "$CK_CONTAINER" cat /ck/build.done       # 0 = success
+# poll for the marker the pipeline writes last
+while ! docker exec "$CK_CONTAINER" test -f /ck/work/run8611/file.done; do sleep 60; done
+docker exec "$CK_CONTAINER" cat /ck/work/run8611/file.done
 ```
 
 Why: a `nohup` launched inside `docker exec` dies when the SSH session ends **and** leaves a zombie process
